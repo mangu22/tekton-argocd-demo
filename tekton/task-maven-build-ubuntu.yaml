@@ -1,19 +1,22 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: maven-build
+  name: maven-build-ubuntu
   namespace: demo-app
 spec:
-  description: Maven을 사용하여 Spring Boot 애플리케이션 빌드
+  description: Ubuntu에서 Maven 설치 후 빌드
   workspaces:
     - name: source
       description: 소스코드 workspace
   steps:
     - name: build
-      image: maven:3.9.6-eclipse-temurin-17
+      image: ubuntu:22.04
       workingDir: $(workspaces.source.path)
       script: |
         #!/bin/bash
+        echo "Java와 Maven 설치 중..."
+        apt-get update
+        apt-get install -y openjdk-17-jdk maven
         echo "Maven 빌드 시작..."
         mvn clean package -DskipTests
         echo "빌드 완료!"

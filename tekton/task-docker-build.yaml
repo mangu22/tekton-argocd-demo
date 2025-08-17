@@ -18,15 +18,14 @@ spec:
       env:
         - name: DOCKER_CONFIG
           value: /kaniko/.docker
-      script: |
-        #!/busybox/sh
-        echo "Docker 이미지 빌드 시작..."
-        /kaniko/executor \
-          --dockerfile=$(workspaces.source.path)/Dockerfile \
-          --context=$(workspaces.source.path) \
-          --destination=$(params.image-name) \
-          --cache=true
-        echo "이미지 빌드 및 푸시 완료!"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=$(workspaces.source.path)/Dockerfile
+        - --context=$(workspaces.source.path)
+        - --destination=$(params.image-name)
+        - --cache=true
+        - --verbosity=info
       volumeMounts:
         - name: docker-config
           mountPath: /kaniko/.docker
