@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: docker-build-push
+  namespace: demo-app
+spec:
+  description: Docker 이미지 빌드 및 푸시
+  params:
+    - name: image-name
+      description: Docker 이미지 이름
+      type: string
+  workspaces:
+    - name: source
+      description: 소스코드 workspace
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor:latest
+      env:
+        - name: DOCKER_CONFIG
+          value: /kaniko/.docker
+      script: |
+        #!/busybox/sh
+        echo "Docker 이미지 빌드 시작..."
+        /kaniko/executor \
+          --dockerfile=$(workspaces.source.path)/Dockerfile \
+          --context=$(workspaces.source.path) \
+          --destination=$(params.image-name) \
+          --cache=true
+        echo "이미지 빌드 및 푸시 완료!"
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: docker-hub-secret

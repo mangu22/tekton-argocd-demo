@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: spring-boot-ci
+  namespace: demo-app
+spec:
+  description: Spring Boot 애플리케이션 CI 파이프라인
+  params:
+    - name: git-url
+      description: Git repository URL
+      type: string
+    - name: git-revision
+      description: Git revision
+      type: string
+      default: main
+    - name: image-name
+      description: Docker 이미지 이름
+      type: string
+  workspaces:
+    - name: shared-data
+      description: 파이프라인 단계 간 공유되는 workspace
+  tasks:
+    - name: clone-repository
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+      workspaces:
+        - name: output
+          workspace: shared-data
+    
+    - name: build-application
+      taskRef:
+        name: maven-build
+      runAfter:
+        - clone-repository
+      workspaces:
+        - name: source
+          workspace: shared-data
+    
+    - name: build-docker-image
+      taskRef:
+        name: docker-build-push
+      runAfter:
+        - build-application
+      params:
+        - name: image-name
+          value: $(params.image-name)
+      workspaces:
+        - name: source
+          workspace: shared-data

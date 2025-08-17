@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+  namespace: demo-app
+spec:
+  description: Git 리포지토리를 클론하는 태스크
+  params:
+    - name: url
+      description: Git repository URL
+      type: string
+    - name: revision
+      description: Git revision (branch, tag, commit SHA)
+      type: string
+      default: main
+  workspaces:
+    - name: output
+      description: Git 소스코드가 저장될 workspace
+  steps:
+    - name: clone
+      image: alpine/git:latest
+      script: |
+        #!/bin/sh
+        cd $(workspaces.output.path)
+        git clone $(params.url) .
+        git checkout $(params.revision)
+        echo "Git clone 완료!"
+        ls -la

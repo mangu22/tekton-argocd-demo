@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: spring-boot-ci-run-001
+  namespace: demo-app
+spec:
+  pipelineRef:
+    name: spring-boot-ci
+  params:
+    - name: git-url
+      value: "https://github.com/mangu22/tekton-argocd-demo.git"
+    - name: git-revision
+      value: "main"
+    - name: image-name
+      value: "mangu22/tekton-argocd-demo:latest"
+  workspaces:
+    - name: shared-data
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
