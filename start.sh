@@ -1,4 +1,4 @@
-# 1. 기존 PipelineRun 삭제
+# 1. 기존 PipelineRun 삭제 11
 kubectl delete pipelinerun spring-boot-ci-run-001 -n demo-app
 
 # 2. 수정된 Docker Task 재배포
